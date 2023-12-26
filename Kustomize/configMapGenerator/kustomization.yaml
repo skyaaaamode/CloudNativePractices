@@ -1,0 +1,41 @@
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# 以下示例创建四个 ConfigMap：
+
+# 第一个使用给定文件的名称和内容创建数据
+# 第二个使用文件中的键/值对将数据创建为键/值
+# 第三个使用 literals 中的键/值对创建数据作为键/值
+# 第四个通过 options 设置单个 ConfigMap 的注释和标签
+
+# 这个标签将添加到所有的 ConfigMap 和 Secret 中。
+generatorOptions:
+  labels:
+    fruit: apple
+
+configMapGenerator:
+- name: my-java-server-props
+# 集群中确保存在一个 ConfigMap 名为 my-java-server-props。如果之前没有通过 Kustomize 或者 kubectl 应用这个 ConfigMap，那么它将不会存在，导致这个合并操作失败。
+  # behavior: merge
+  files:
+  - application.properties
+  - more.properties
+- name: my-java-server-env-file-vars
+  envs:
+  - my-server-env.properties
+  - more-server-props.env
+- name: my-java-server-env-vars
+  literals:
+  - LOGNAME=zzf
+  options:
+    disableNameSuffixHash: true
+    labels:
+      pet: dog
+- name: dashboards
+  files:
+  - mydashboard.json
+  options:
+    annotations:
+      dashboard: "1"
+    labels:
+      app.kubernetes.io/name: "app1"
